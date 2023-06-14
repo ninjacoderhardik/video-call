@@ -4,7 +4,7 @@ import Peer from 'simple-peer';
 
 const SocketContext = createContext();
 
-const socket = io('https://2e8f-2405-201-2016-a018-d28-ecea-824f-196e.ngrok-free.app');
+const socket = io('https://video-call-1.onrender.com');
 // const socket = io('https://warm-wildwood-81069.herokuapp.com');
 
 const ContextProvider = ({ children }) => {
@@ -28,7 +28,6 @@ const ContextProvider = ({ children }) => {
       });
 
     socket.on('me', (id) => {
-      console.log('me =>', id);
       setMe(id);
     });
 
@@ -43,7 +42,7 @@ const ContextProvider = ({ children }) => {
     const peer = new Peer({ initiator: false, trickle: false, stream });
 
     peer.on('signal', (data) => {
-      socket.emit('answerCall', { signal: data, to: call.from });
+      socket.emit('answerCall', { signal: data, to: call.from, name });
     });
 
     peer.on('stream', (currentStream) => {
@@ -69,7 +68,8 @@ const ContextProvider = ({ children }) => {
     socket.on('callAccepted', (signal) => {
       setCallAccepted(true);
 
-      peer.signal(signal);
+      peer.signal(signal.signal);
+      setCall({ name: signal.name });
     });
 
     connectionRef.current = peer;
@@ -80,7 +80,7 @@ const ContextProvider = ({ children }) => {
 
     connectionRef.current.destroy();
 
-    window.location.reload();
+    // window.location.reload();
   };
 
   return (
